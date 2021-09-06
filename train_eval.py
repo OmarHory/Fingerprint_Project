@@ -6,8 +6,9 @@ import mlflow
 import tensorflow as tf
 
 mlflow.autolog()
-#TODO:check mlflow how to track
-#TODO: Save model after 10 epochs.
+# TODO:check mlflow how to track
+# TODO: Save model after 10 epochs.
+
 
 class TrainAndEvaluate(multipleInputAlexNet, ProcessImages):
     def __init__(self):
