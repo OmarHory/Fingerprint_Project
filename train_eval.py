@@ -20,7 +20,7 @@ class TrainAndEvaluate(multipleInputAlexNet, ProcessImages):
         )
 
     def train(self):
-        model = self.network_obj.original_alex_net()
+        model = self.network_obj.multiple_input_alex_net()
         model.compile(
             loss=training_config["loss"],
             optimizer=tf.optimizers.Adam(lr=training_config["lr"]),

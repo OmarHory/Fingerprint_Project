@@ -1,0 +1,5 @@
+tensorflow
+sklearn
+matplotlib
+opecv-python
+scikit-image

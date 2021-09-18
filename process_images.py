@@ -3,14 +3,20 @@ import matplotlib.pyplot as plt
 from config import image_config, training_config
 
 # TODO: Add a function to make for contrastive learning.
+# TODO: Augment second image.
 
 
 class ProcessImages(object):
     def __init__(self):
+        # (train_images, train_labels), (
+        #     test_images,
+        #     test_labels,
+        # ) = tf.keras.datasets.cifar10.load_data()
+
         (train_images, train_labels), (
             test_images,
             test_labels,
-        ) = tf.keras.datasets.cifar10.load_data()
+        ) = self.__process_fingerprint()
 
         validation_images, validation_labels = (
             train_images[: training_config["val_size"]],
@@ -58,6 +64,9 @@ class ProcessImages(object):
         )
 
         # self.draw_num_samples(num=5)
+
+    def __process_fingerprint(self):
+        pass
 
     def draw_num_samples(self, num=5):
         plt.figure(figsize=(20, 20))

@@ -2,18 +2,7 @@ image_config = dict(
     height=277,
     width=277,
     channels=3,
-    class_names=[
-        "airplane",
-        "automobile",
-        "bird",
-        "cat",
-        "deer",
-        "dog",
-        "frog",
-        "horse",
-        "ship",
-        "truck",
-    ],
+    class_names=["same", "different"],
 )
 training_config = dict(
     epochs=50,
