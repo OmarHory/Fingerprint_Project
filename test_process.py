@@ -1,4 +1,3 @@
-path = "/home/omar/Desktop/fingerprint_dataset/second_session/"
 
 import os
 import cv2
@@ -8,62 +7,71 @@ from skimage import transform
 import random
 import numpy as np
 
-# TODO: make sure to validate the pairs of same and different.
-
-
-def get_single_image():
+path = "/home/omar/Desktop/fingerprint_dataset/second_session/"
+NUM_AUGMENTATIONS = 12
+MAX_DEGREE = 359
+MIN_DEGREE = 0
+def process_dataset():
     images_names = []
+    dataset = {}
     train_images = []
     train_labels = []
+
     for image_name in os.listdir(path):
         if image_name.split("_")[1].split(".")[0] == "1":
             images_names.append(image_name)
 
-    all_pairs = [
-        (images_names[i], images_names[j])
-        for i in range(len(images_names))
-        for j in range(i + 1, len(images_names))
-    ]
+    for image in images_names:
+        dataset[image] = [
+            augment_image(os.path.join(path, image))
+            for _ in range(0, NUM_AUGMENTATIONS)
+        ]
 
-    for p1, p2 in all_pairs:
-        train_images.append(
-            (
-                cv2.imread(os.path.join(path, p1), -1),
-                augment_image(os.path.join(path, p2)),
-            )
-        )
+    for key in dataset:
+        all_pairs = [
+            (dataset[key][i], dataset[key][j])
+            for i in range(len(dataset[key]))
+            for j in range(i + 1, len(dataset[key]))
+        ]
+
+        train_images.append(all_pairs)
+        train_labels.append("same")
+
+    matrix = []
+
+    for key in dataset:
+        matrix.append(dataset[key])
+
+    for i in range(0, len(matrix) - 1):
+        all_pairs = [
+            (matrix[i], matrix[i + 1])
+            for i in range(len(matrix[i]))
+            for j in range(len(matrix[i + 1]))
+        ]
+
+        train_images.append(all_pairs)
         train_labels.append("different")
 
-    for image in images_names:
-        try:
-            train_images.append(
-                (
-                    cv2.imread(os.path.join(path, image), -1),
-                    augment_image(os.path.join(path, image)),
-                )
-            )
-            train_labels.append("same")
-        except:
-            pass
+    final_dataset = []
+    for image, label in zip(train_images, train_labels):
+        for pair in image:
+            final_dataset.append([pair, label])
+
+    del dataset
+    del matrix
+    del images_names
+
+    return final_dataset
 
 
 def augment_image(img_path):
-    random_degree = random.randint(0, 360)
+    random_degree = random.randint(MIN_DEGREE, MAX_DEGREE)
 
-    file_name = os.path.join(
-        "/home/omar/Desktop/temp_images",
-        img_path.split("/")[-1].split(".")[0] + "_rotated.jpg",
-    )
     rotated = transform.rotate(
         cv2.imread(img_path, -1), angle=-1 * random_degree, preserve_range=True
     ).astype(np.uint8)
 
-    cv2.imwrite(
-        file_name,
-        rotated,
-    )
-
     return rotated
 
 
-get_single_image()
+fingerprint_dataset = process_dataset()
