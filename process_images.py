@@ -1,47 +1,38 @@
 import tensorflow as tf
 import matplotlib.pyplot as plt
-from config import image_config, training_config
+from config import image_config, training_config, dataset_config
+import pickle
+import random
+import numpy as np
 
 # TODO: Add a function to make for contrastive learning.
-# TODO: Augment second image.
 
 
 class ProcessImages(object):
     def __init__(self):
-        # (train_images, train_labels), (
-        #     test_images,
-        #     test_labels,
-        # ) = tf.keras.datasets.cifar10.load_data()
 
-        (train_images, train_labels), (
-            test_images,
-            test_labels,
-        ) = self.__process_fingerprint()
+        dataset = self.__load_fingerprint()
+        (
+            (train_images, train_labels),
+            (validation_images, validation_labels),
+            (test_images, test_labels),
+        ) = self.__train_val_test_split(dataset)
 
-        validation_images, validation_labels = (
-            train_images[: training_config["val_size"]],
-            train_labels[: training_config["val_size"]],
+
+        train_ds = tf.data.Dataset.from_tensor_slices(
+            (np.array(train_images), np.array(train_labels))
         )
-        train_images, train_labels = (
-            train_images[
-                training_config["val_size"] : training_config["val_size"] + 5000
-            ],
-            train_labels[
-                training_config["val_size"] : training_config["val_size"] + 5000
-            ],
-        )
-
-        train_ds = tf.data.Dataset.from_tensor_slices((train_images, train_labels))
-
-        test_ds = tf.data.Dataset.from_tensor_slices((test_images, test_labels))
-
         validation_ds = tf.data.Dataset.from_tensor_slices(
-            (validation_images, validation_labels)
+            (np.array(validation_images), np.array(validation_labels))
+        )
+        test_ds = tf.data.Dataset.from_tensor_slices(
+            (np.array(test_images), np.array(test_labels))
         )
 
         train_ds_size = tf.data.experimental.cardinality(train_ds).numpy()
         test_ds_size = tf.data.experimental.cardinality(test_ds).numpy()
         validation_ds_size = tf.data.experimental.cardinality(validation_ds).numpy()
+
         print("Training data size:", train_ds_size)
         print("Test data size:", test_ds_size)
         print("Validation data size:", validation_ds_size)
@@ -63,10 +54,62 @@ class ProcessImages(object):
             .batch(batch_size=training_config["batch_size"], drop_remainder=True)
         )
 
+
+
         # self.draw_num_samples(num=5)
 
-    def __process_fingerprint(self):
-        pass
+    @staticmethod
+    def __load_fingerprint():
+        with open(dataset_config["save_dataset_path"], "rb") as f:
+            dataset = pickle.load(f)
+        for _ in range(0, dataset_config["number_of_shuffles"]):
+            random.shuffle(dataset)
+        return dataset
+
+    @staticmethod
+    def __train_val_test_split(dataset):
+        # [(p1,p2), labels]
+
+        images = []
+        labels = []
+
+        for example in dataset:
+            images.append(example[0])
+            labels.append(example[1])
+
+        training_images = images[: training_config["train_size"]]
+        training_labels = labels[: training_config["train_size"]]
+
+        val_images = images[
+            training_config["train_size"] : training_config["train_size"]
+            + training_config["val_size"]
+        ]
+        val_labels = labels[
+            training_config["train_size"] : training_config["train_size"]
+            + training_config["val_size"]
+        ]
+
+        test_images = images[
+            training_config["train_size"]
+            + training_config["val_size"] : training_config["train_size"]
+            + training_config["val_size"]
+            + training_config["test_size"]
+        ]
+        test_labels = labels[
+            training_config["train_size"]
+            + training_config["val_size"] : training_config["train_size"]
+            + training_config["val_size"]
+            + training_config["test_size"]
+        ]
+
+        del images
+        del labels
+
+        return (
+            (training_images, training_labels),
+            (val_images, val_labels),
+            (test_images, test_labels),
+        )
 
     def draw_num_samples(self, num=5):
         plt.figure(figsize=(20, 20))
@@ -78,8 +121,19 @@ class ProcessImages(object):
         plt.show()
 
     def process_images(self, image, label):
+        image1 = image[0]
+        image2 = image[1]
+        image1 = tf.reshape(image1, [image1.shape[0], image1.shape[1],1])
+        image2 = tf.reshape(image2, [image2.shape[0], image2.shape[1],1])
+
+
+
         # Normalize images to have a mean of 0 and standard deviation of 1
-        image = tf.image.per_image_standardization(image)
+        image1 = tf.image.per_image_standardization(image1)
+        image2 = tf.image.per_image_standardization(image2)
+
         # Resize images from 32x32 to 277x277
-        image = tf.image.resize(image, (image_config["height"], image_config["width"]))
-        return image, label
+        image1 = tf.image.resize(image1, (image_config["height"], image_config["width"]))
+        image2 = tf.image.resize(image2, (image_config["height"], image_config["width"]))
+
+        return (image1,image2), label

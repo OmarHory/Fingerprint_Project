@@ -76,7 +76,7 @@ class multipleInputAlexNet(object):
             padding="same",
         )(X)
         X = BatchNormalization()(X)
-        X = tf.keras.layers.Conv2D(
+        X = Conv2D(
             filters=256,
             kernel_size=(3, 3),
             strides=(1, 1),

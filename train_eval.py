@@ -5,13 +5,15 @@ import matplotlib.pyplot as plt
 import mlflow
 import tensorflow as tf
 
-mlflow.autolog()
+# mlflow.autolog()
+
 # TODO:check mlflow how to track
 # TODO: Save model after 10 epochs.
 
 
 class TrainAndEvaluate(multipleInputAlexNet, ProcessImages):
     def __init__(self):
+
         self.process_obj = ProcessImages()
         self.network_obj = multipleInputAlexNet(
             image_config["height"],
@@ -29,17 +31,18 @@ class TrainAndEvaluate(multipleInputAlexNet, ProcessImages):
 
         print(model.summary())
 
-        with mlflow.start_run(run_name=training_config["run_name"]) as run:
-            history = model.fit(
-                self.process_obj.train_ds,
-                epochs=training_config["epochs"],
-                validation_data=self.process_obj.validation_ds,
-                validation_freq=1,
-            )
-            self.plot_loss(history)
-            accuracy_custom = model.evaluate(self.process_obj.test_ds)[1]
-            mlflow.log_metric("accuracy_custom", accuracy_custom)
-            print(model.evaluate(self.process_obj.test_ds))
+        # with mlflow.start_run(run_name=training_config["run_name"]) as run:
+        history = model.fit(
+            self.process_obj.train_ds,
+            epochs=training_config["epochs"],
+            validation_data=self.process_obj.validation_ds,
+            validation_freq=1,
+            verbose=1
+        )
+        self.plot_loss(history)
+        accuracy_custom = model.evaluate(self.process_obj.test_ds)[1]
+        # mlflow.log_metric("accuracy_custom", accuracy_custom)
+        print(model.evaluate(self.process_obj.test_ds))
 
     @staticmethod
     def plot_loss(history):
