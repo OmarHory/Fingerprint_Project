@@ -14,16 +14,19 @@ image_config = dict(
     height=277,
     width=277,
     channels=1,
-    class_names=["same", "different"],
+    class_names=[0, 1],
 )
 
 training_config = dict(
-    train_size=100,
-    val_size=100,
-    test_size=100,
+    train_size=1000,
+    val_size=1000,
+    test_size=1000,
     epochs=50,
-    batch_size=1,
+    batch_size=16,
     run_name="AlexNet_Multiple_Inputs",
     loss="binary_crossentropy",
     lr=0.001,
+    patience=5,
+    experiment_name="trial1",
+    experiment_path="./experiments",
 )

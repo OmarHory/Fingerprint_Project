@@ -18,7 +18,6 @@ class ProcessImages(object):
             (test_images, test_labels),
         ) = self.__train_val_test_split(dataset)
 
-
         train_ds = tf.data.Dataset.from_tensor_slices(
             (np.array(train_images), np.array(train_labels))
         )
@@ -53,8 +52,6 @@ class ProcessImages(object):
             .shuffle(buffer_size=train_ds_size)
             .batch(batch_size=training_config["batch_size"], drop_remainder=True)
         )
-
-
 
         # self.draw_num_samples(num=5)
 
@@ -123,17 +120,19 @@ class ProcessImages(object):
     def process_images(self, image, label):
         image1 = image[0]
         image2 = image[1]
-        image1 = tf.reshape(image1, [image1.shape[0], image1.shape[1],1])
-        image2 = tf.reshape(image2, [image2.shape[0], image2.shape[1],1])
-
-
+        image1 = tf.reshape(image1, [image1.shape[0], image1.shape[1], 1])
+        image2 = tf.reshape(image2, [image2.shape[0], image2.shape[1], 1])
 
         # Normalize images to have a mean of 0 and standard deviation of 1
         image1 = tf.image.per_image_standardization(image1)
         image2 = tf.image.per_image_standardization(image2)
 
         # Resize images from 32x32 to 277x277
-        image1 = tf.image.resize(image1, (image_config["height"], image_config["width"]))
-        image2 = tf.image.resize(image2, (image_config["height"], image_config["width"]))
+        image1 = tf.image.resize(
+            image1, (image_config["height"], image_config["width"])
+        )
+        image2 = tf.image.resize(
+            image2, (image_config["height"], image_config["width"])
+        )
 
-        return (image1,image2), label
+        return (image1, image2), label

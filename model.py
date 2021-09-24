@@ -9,11 +9,8 @@ from tensorflow.keras.layers import (
     Dropout,
     concatenate,
 )
-from tensorflow.keras import optimizers
 from tensorflow.keras import Model
-
-
-# TODO: Add callbacks
+from config import training_config
 
 
 class multipleInputAlexNet(object):
@@ -34,9 +31,10 @@ class multipleInputAlexNet(object):
         X = Dropout(0.5)(X)
         X = Dense(4096, activation="relu")(X)
         X = Dropout(0.5)(X)
-        output = Dense(10, activation="softmax")(X)
+        output = Dense(1, activation="softmax")(X)
 
-        model = Model(inputs=[model_A, model_B], outputs=[output])
+        model = Model(inputs=[input_A, input_B], outputs=[output])
+        print(model.summary())
 
         return model
 
