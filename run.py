@@ -1,6 +1,4 @@
 from train_eval import TrainAndEvaluate
-from config import dataset_config
-import os
 
 # TODO: let the process classes not to take config files as global variables.
 

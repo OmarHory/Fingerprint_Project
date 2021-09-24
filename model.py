@@ -10,7 +10,6 @@ from tensorflow.keras.layers import (
     concatenate,
 )
 from tensorflow.keras import Model
-from config import training_config
 
 
 class multipleInputAlexNet(object):

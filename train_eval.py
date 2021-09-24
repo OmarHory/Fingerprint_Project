@@ -68,7 +68,7 @@ class TrainAndEvaluate(multipleInputAlexNet, ProcessImages):
             training_config["experiment_path"], training_config["experiment_name"]
         )
         temp = "saved-model-{epoch:02d}-{val_loss:.2f}.hdf5"
-        location = os.path.join(exp_dir,temp)
+        location = os.path.join(exp_dir, temp)
         rlr = ReduceLROnPlateau(
             monitor="val_loss", patience=training_config["patience"], min_lr=0.0005
         )
