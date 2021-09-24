@@ -8,6 +8,7 @@ augmentation_config = dict(
     num_augmentations=12,
     max_rotation_degree=359,
     min_rotation_degree=0,
+    if_augment=False,
 )
 
 image_config = dict(
@@ -21,7 +22,7 @@ training_config = dict(
     train_size=1000,
     val_size=1000,
     test_size=1000,
-    epochs=50,
+    epochs=3,
     batch_size=16,
     run_name="AlexNet_Multiple_Inputs",
     loss="binary_crossentropy",

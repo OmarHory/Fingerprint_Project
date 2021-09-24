@@ -5,8 +5,6 @@ import pickle
 import random
 import numpy as np
 
-# TODO: Add a function to make for contrastive learning.
-
 
 class ProcessImages(object):
     def __init__(self):

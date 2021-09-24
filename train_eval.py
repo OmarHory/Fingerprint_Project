@@ -36,7 +36,7 @@ class TrainAndEvaluate(multipleInputAlexNet, ProcessImages):
         )
 
         print(model.summary())
-        print(self.process_obj.train_ds)
+
         with mlflow.start_run(run_name=training_config["run_name"]) as run:
             history = model.fit(
                 self.process_obj.train_ds,
@@ -69,11 +69,12 @@ class TrainAndEvaluate(multipleInputAlexNet, ProcessImages):
         )
         temp = "saved-model-{epoch:02d}-{val_loss:.2f}.hdf5"
         location = os.path.join(exp_dir, temp)
+        print(location)
         rlr = ReduceLROnPlateau(
             monitor="val_loss", patience=training_config["patience"], min_lr=0.0005
         )
         checkpoint = ModelCheckpoint(
-            temp,
+            location,
             monitor="val_loss",
             verbose=0,
             save_best_only=True,

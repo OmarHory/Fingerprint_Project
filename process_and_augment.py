@@ -9,7 +9,7 @@ from config import dataset_config, image_config, augmentation_config, training_c
 import matplotlib.pyplot as plt
 
 # TODO: Make it a class?
-
+# TODO: Add another augmentation technique
 
 def process_dataset():
     images_names = []
@@ -92,49 +92,16 @@ def load_fingerprint():
         dataset = pickle.load(f)
     for _ in range(0, dataset_config["number_of_shuffles"]):
         random.shuffle(dataset)
+
+    print('Augmented and loaded sucessfully\nPassed Health Check.')
+    
     return dataset
 
 
-def train_val_test_split(dataset):
-    # [(p1,p2), labels]
 
-    images = []
-    labels = []
+if __name__ == "__main__":
+    fingerprint_dataset = process_dataset()
+    save_dataset(fingerprint_dataset)
+    dataset = load_fingerprint()
+    print('Augmented sucessfully')
 
-    for example in dataset:
-        images.append(example[0])
-        labels.append(example[1])
-
-    training_images = images[: training_config["train_size"]]
-    training_labels = labels[: training_config["train_size"]]
-
-    val_images = images[
-        training_config["train_size"] : training_config["train_size"]
-        + training_config["val_size"]
-    ]
-    val_labels = labels[
-        training_config["train_size"] : training_config["train_size"]
-        + training_config["val_size"]
-    ]
-
-    test_images = images[training_config["train_size"] + training_config["val_size"] :]
-    test_labels = labels[training_config["train_size"] + training_config["val_size"] :]
-
-    del images
-    del labels
-
-    return (
-        (training_images, training_labels),
-        (val_images, val_labels),
-        (test_images, test_labels),
-    )
-
-
-fingerprint_dataset = process_dataset()
-save_dataset(fingerprint_dataset)
-dataset = load_fingerprint()
-(
-    (training_images, training_labels),
-    (val_images, val_labels),
-    (test_images, test_labels),
-) = train_val_test_split(dataset)
