@@ -3,6 +3,8 @@ import cv2
 import argparse
 import os
 
+#usage: python enhance_fingerprint.py --dir DIRECTORY_OF_IAMGES --out_dir OUTPUT_DIRECTORY
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--dir', type=str, required=True, help='dir of images')
 parser.add_argument('--out_dir', type=str, required=True, help='dir of enhanced images')
