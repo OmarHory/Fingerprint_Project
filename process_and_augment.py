@@ -7,9 +7,14 @@ import numpy as np
 import pickle
 from config import dataset_config, image_config, augmentation_config, training_config
 import matplotlib.pyplot as plt
+import tensorflow as tf
+import numpy as np
+import gc
 
 # TODO: Make it a class?
 # TODO: Add another augmentation technique
+# TODO: OPTIMIIIZE CODE
+
 
 def process_dataset():
     images_names = []
@@ -52,10 +57,37 @@ def process_dataset():
         dataset_images.append(all_pairs)
         dataset_labels.append(image_config["class_names"][1])
 
-    final_dataset = []
+    whole_dataset = []
     for image, label in zip(dataset_images, dataset_labels):
         for pair in image:
-            final_dataset.append([pair, label])
+            pair = (
+                cv2.resize(pair[0], ((image_config["height"], image_config["width"]))),
+                cv2.resize(pair[1], ((image_config["height"], image_config["width"]))),
+            )
+            pair = (
+                cv2.normalize(
+                    pair[0],
+                    None,
+                    alpha=0,
+                    beta=1,
+                    norm_type=cv2.NORM_MINMAX,
+                    dtype=cv2.CV_32F,
+                ),
+                cv2.normalize(
+                    pair[1],
+                    None,
+                    alpha=0,
+                    beta=1,
+                    norm_type=cv2.NORM_MINMAX,
+                    dtype=cv2.CV_32F,
+                ),
+            )
+            whole_dataset.append([pair, label])
+    print("Finished resizing and normalizing.")
+
+    gc.collect()
+
+
 
     del dataset
     del matrix
@@ -63,7 +95,7 @@ def process_dataset():
     del dataset_images
     del dataset_labels
 
-    return final_dataset
+    return whole_dataset
 
 
 def augment_image(img_path):
@@ -79,29 +111,66 @@ def augment_image(img_path):
     return rotated
 
 
-def save_dataset(dataset: list):
-    with open(
-        dataset_config["save_dataset_path"],
-        "wb",
-    ) as f:
+def save_dataset(dataset):
+    with open(dataset_config["save_dataset_path"], "wb") as f:
         pickle.dump(dataset, f)
 
 
 def load_fingerprint():
     with open(dataset_config["save_dataset_path"], "rb") as f:
-        dataset = pickle.load(f)
-    for _ in range(0, dataset_config["number_of_shuffles"]):
-        random.shuffle(dataset)
+        return pickle.load(f)
 
-    print('Augmented and loaded sucessfully\nPassed Health Check.')
-    
-    return dataset
 
+def train_val_test_split(dataset):
+    # [(p1,p2), labels]
+
+    images = []
+    labels = []
+
+    for example in dataset:
+        images.append(example[0])
+        labels.append(example[1])
+
+    training_images = images[: training_config["train_size"]]
+    training_labels = labels[: training_config["train_size"]]
+
+    val_images = images[
+        training_config["train_size"] : training_config["train_size"]
+        + training_config["val_size"]
+    ]
+    val_labels = labels[
+        training_config["train_size"] : training_config["train_size"]
+        + training_config["val_size"]
+    ]
+
+    test_images = images[
+        training_config["train_size"]
+        + training_config["val_size"] : training_config["train_size"]
+        + training_config["val_size"]
+        + training_config["test_size"]
+    ]
+    test_labels = labels[
+        training_config["train_size"]
+        + training_config["val_size"] : training_config["train_size"]
+        + training_config["val_size"]
+        + training_config["test_size"]
+    ]
+
+    del images
+    del labels
+    return (
+        (training_images, training_labels),
+        (val_images, val_labels),
+        (test_images, test_labels),
+    )
 
 
 if __name__ == "__main__":
-    fingerprint_dataset = process_dataset()
-    save_dataset(fingerprint_dataset)
-    dataset = load_fingerprint()
-    print('Augmented sucessfully')
+    dataset = process_dataset()
+    print('Finished processing')
+    gc.collect()
 
+    save_dataset(
+        dataset
+    )
+    print('Saved')

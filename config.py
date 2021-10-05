@@ -5,7 +5,7 @@ dataset_config = dict(
 )
 
 augmentation_config = dict(
-    num_augmentations=12,
+    num_augmentations=6,
     max_rotation_degree=359,
     min_rotation_degree=0,
     if_augment=False,
@@ -23,7 +23,7 @@ training_config = dict(
     val_size=1000,
     test_size=1000,
     epochs=3,
-    batch_size=16,
+    batch_size=128,
     run_name="AlexNet_Multiple_Inputs",
     loss="binary_crossentropy",
     lr=0.001,

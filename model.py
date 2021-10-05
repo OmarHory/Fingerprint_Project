@@ -26,9 +26,9 @@ class multipleInputAlexNet(object):
         combined_vector = concatenate([model_A, model_B])
 
         X = Flatten()(combined_vector)
-        X = Dense(4096, activation="relu")(X)
+        X = Dense(32, activation="relu")(X)
         X = Dropout(0.5)(X)
-        X = Dense(4096, activation="relu")(X)
+        X = Dense(32, activation="relu")(X)
         X = Dropout(0.5)(X)
         output = Dense(1, activation="softmax")(X)
 
@@ -37,7 +37,19 @@ class multipleInputAlexNet(object):
 
         return model
 
+
     def create_convolutional_layers(self, input_img):
+        X = Conv2D(28, (3, 3), activation='relu', input_shape=(self.height, self.width, self.channels))(input_img)
+        X = MaxPool2D((2, 2))(X)
+        # X = Conv2D(56, (3, 3), activation='relu')(X)
+        # X = MaxPool2D((2, 2))(X)
+        # X = Conv2D(56, (3, 3), activation='relu')(X)
+        # X = MaxPool2D((2, 2))(X)
+
+        return X
+
+
+    def temp_create_convolutional_layers(self, input_img):
         X = Conv2D(
             filters=96,
             kernel_size=(11, 11),

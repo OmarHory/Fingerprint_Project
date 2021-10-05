@@ -4,3 +4,4 @@ matplotlib
 opecv-python
 scikit-image
 mlflow
+fingerprint_enhancer

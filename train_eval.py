@@ -7,7 +7,7 @@ import tensorflow as tf
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
 import os
 
-mlflow.autolog()
+# mlflow.autolog()
 
 # TODO:check mlflow how to track
 
@@ -31,25 +31,25 @@ class TrainAndEvaluate(multipleInputAlexNet, ProcessImages):
         model = self.network_obj.multiple_input_alex_net()
         model.compile(
             loss=training_config["loss"],
-            optimizer=tf.optimizers.Adam(lr=training_config["lr"]),
+            optimizer=tf.optimizers.Adam(learning_rate=training_config["lr"]),
             metrics=["accuracy"],
         )
 
         print(model.summary())
 
-        with mlflow.start_run(run_name=training_config["run_name"]) as run:
-            history = model.fit(
-                self.process_obj.train_ds,
-                epochs=training_config["epochs"],
-                validation_data=self.process_obj.validation_ds,
-                batch_size=training_config["batch_size"],
-                verbose=1,
-                callbacks=[self.callbacks()],
-            )
-            self.plot_loss(history)
-            accuracy_custom = model.evaluate(self.process_obj.test_ds)[1]
-            mlflow.log_metric("accuracy_custom", accuracy_custom)
-            print(model.evaluate(self.process_obj.test_ds))
+        # with mlflow.start_run(run_name=training_config["run_name"]) as run:
+        history = model.fit(
+            self.process_obj.train_ds,
+            epochs=training_config["epochs"],
+            validation_data=self.process_obj.validation_ds,
+            batch_size=training_config["batch_size"],
+            verbose=1,
+            callbacks=[self.callbacks()],
+        )
+        self.plot_loss(history)
+        accuracy_custom = model.evaluate(self.process_obj.test_ds)[1]
+        # mlflow.log_metric("accuracy_custom", accuracy_custom)
+        print(model.evaluate(self.process_obj.test_ds))
 
     @staticmethod
     def plot_loss(history):
